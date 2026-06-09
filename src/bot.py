@@ -4,7 +4,7 @@ import search
 import io
 from deck import build_deck_image
 from config import DISCORD_API_KEY
-from Speedwagon import Speedwagon
+from CRBot import CRBot
 
 if not DISCORD_API_KEY:
     raise ValueError("API key not found")
@@ -14,7 +14,7 @@ browser = None
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = Speedwagon(command_prefix=">", intents=intents)
+bot = CRBot(command_prefix=">", intents=intents)
 
 @bot.command()
 async def d(ctx, name, clan=None):

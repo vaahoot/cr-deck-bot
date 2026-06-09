@@ -1,10 +1,10 @@
 from discord.ext import commands
 from playwright.async_api import Browser, Playwright, async_playwright
 
-import search
+import helper
 
 
-class Speedwagon(commands.Bot):
+class CRBot(commands.Bot):
     def __init__(self, command_prefix, intents):
         super().__init__(command_prefix, intents=intents)
         self.browser: Browser | None = None
@@ -13,7 +13,7 @@ class Speedwagon(commands.Bot):
     async def setup_hook(self):
         self.playwright = await async_playwright().start()
         print(f"[INFO] Created playwright: {self.playwright}")
-        self.browser = await search.init_browser(self.playwright)
+        self.browser = await helper.init_browser(self.playwright)
         print(f"[INFO] Created a browser: {self.browser}")
 
     async def close(self):

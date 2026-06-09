@@ -7,4 +7,4 @@ CLASH_API_CLAN_MEMBERS = "https://proxy.royaleapi.dev/v1/clans/{0}/members"
 API_KEY = os.getenv("CR_KEY")
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
-DISCORD_API_KEY = os.getenv("SPEEDWAGON_KEY")
+DISCORD_API_KEY = os.getenv("DISCORD_KEY")
