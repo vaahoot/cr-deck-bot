@@ -26,5 +26,5 @@ When the bot is on, the command to search for a deck is:
 ```
 >d <nickname> <clan>
 ```
-If either nickname or clan have multiple words in them, they have to be wrapped in speech marks
+If either nickname or clan have multiple words in them, they have to be wrapped in speech marks.
 Clan is optional but if not given, only users with no clan will be searched
