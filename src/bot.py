@@ -22,6 +22,8 @@ async def d(ctx, name, clan=None):
         await ctx.reply("ERROR: No browser is initialized")
         return
 
+    print(f"[INFO] Searching for: {name}, Clan: {clan if clan else "No clan"}")
+
     deck = await search.find_deck(bot.browser, name, clan)
 
 
