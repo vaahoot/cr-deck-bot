@@ -1,5 +1,4 @@
 import asyncio
-import unicodedata
 
 import aiohttp
 import bs4
@@ -12,16 +11,7 @@ from config import (
     ROYALE_API_CLAN_SEARCH,
     ROYALE_API_PLAYER_SEARCH,
 )
-
-
-def normalise(text: str) -> str:
-    return unicodedata.normalize("NFKC", text).lower().strip()
-
-
-async def init_browser(playwright: Playwright) -> Browser:
-    chromium = playwright.chromium
-    browser = await chromium.launch(headless=False)
-    return browser
+from helper import init_browser, normalise
 
 
 async def search(browser: Browser, link: str, selector: str) -> str:
@@ -96,7 +86,18 @@ def get_last_deck(data: list[dict] | None) -> list[str] | None:
     last_battle = data[0]
     team = last_battle["team"][0]
     cards = team["cards"]
-    return [card["name"] for card in cards]
+
+    deck = []
+
+    for card in cards:
+        if card.get("evolutionLevel") == 1:
+            card["name"] = "Evo " + card["name"]
+        elif card.get("evolutionLevel") == 2:
+            card["name"] = "Hero " + card["name"]
+
+        deck.append(card["name"])
+
+    return deck
 
 
 def find_player_tag(players: list[dict], clan: str | None) -> str | None:
