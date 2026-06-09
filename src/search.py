@@ -11,6 +11,7 @@ from config import (
     ROYALE_API_CLAN_SEARCH,
     ROYALE_API_PLAYER_SEARCH,
 )
+from deck import get_last_deck
 from helper import init_browser, normalise
 
 
@@ -79,27 +80,6 @@ def parse_clans(html: str) -> list[str]:
     return clans
 
 
-def get_last_deck(data: list[dict] | None) -> list[str] | None:
-    if not data:
-        return None
-
-    last_battle = data[0]
-    team = last_battle["team"][0]
-    cards = team["cards"]
-
-    deck = []
-
-    for card in cards:
-        if card.get("evolutionLevel") == 1:
-            card["name"] = "Evo " + card["name"]
-        elif card.get("evolutionLevel") == 2:
-            card["name"] = "Hero " + card["name"]
-
-        deck.append(card["name"])
-
-    return deck
-
-
 def find_player_tag(players: list[dict], clan: str | None) -> str | None:
     if not clan:
         for player in players:
@@ -149,7 +129,7 @@ async def search_player_in_clans(clans: list[str], name: str) -> str | None:
 
 async def find_deck_by_name(
     browser: Browser, name: str, clan: str | None
-) -> list[str] | None:
+) -> list[dict[str, str]] | None:
     search_players = await search_player_by_name(browser, name)
     players = parse_players(search_players)
     player_tag = find_player_tag(players, clan)
@@ -162,7 +142,7 @@ async def find_deck_by_name(
     return get_last_deck(data)
 
 
-async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[str] | None:
+async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[dict[str, str]] | None:
     search_clans = await search_clans_by_name(browser, clan)
     clans = parse_clans(search_clans)
     member_tag = await search_player_in_clans(clans, name)
@@ -175,7 +155,7 @@ async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[str]
     return get_last_deck(data)
 
 
-async def find_deck(browser: Browser, name: str, clan: str | None) -> list[str] | None:
+async def find_deck(browser: Browser, name: str, clan: str | None) -> list[dict[str, str]] | None:
     if not clan:
         return await find_deck_by_name(browser, name, clan)
 
@@ -190,13 +170,6 @@ async def run(playwright: Playwright) -> None:
 
     name = input("Player name: ")
     clan = input("Player clan: ") or None
-
-    deck = await find_deck(browser, name, clan)
-
-    if not deck:
-        print("No deck found")
-    else:
-        print(deck)
 
     await browser.close()
 

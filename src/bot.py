@@ -1,6 +1,8 @@
 import discord
 
 import search
+import io
+from deck import build_deck_image
 from config import DISCORD_API_KEY
 from Speedwagon import Speedwagon
 
@@ -15,13 +17,23 @@ intents.message_content = True
 bot = Speedwagon(command_prefix=">", intents=intents)
 
 @bot.command()
-async def d(ctx, name, clan):
+async def d(ctx, name, clan=None):
+    if not bot.browser:
+        await ctx.reply("ERROR: No browser is initialized")
+        return
+
     deck = await search.find_deck(bot.browser, name, clan)
 
-    if deck:
-        await ctx.send(", ".join(deck))
-    else:
-        await ctx.send("No deck found")
+
+    if not deck:
+        await ctx.reply("No deck found")
+        return
+
+    deck_image = await build_deck_image(deck)
+    buffer = io.BytesIO()
+    deck_image.save(buffer, format="PNG")
+    buffer.seek(0)
+    await ctx.reply(file=discord.File(buffer, filename="deck.png"))
 
 
 bot.run(DISCORD_API_KEY)
