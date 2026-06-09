@@ -1,9 +1,6 @@
-import asyncio
-
 import aiohttp
 import bs4
-from playwright.async_api import Browser, Playwright, async_playwright
-
+from playwright.async_api import Browser
 from config import (
     CLASH_API_BATTLE_LOG,
     CLASH_API_CLAN_MEMBERS,
@@ -12,7 +9,7 @@ from config import (
     ROYALE_API_PLAYER_SEARCH,
 )
 from deck import get_last_deck
-from helper import init_browser, normalise
+from helper import normalise
 
 
 async def search(browser: Browser, link: str, selector: str) -> str:
@@ -137,7 +134,7 @@ async def find_deck_by_name(
     if not player_tag:
         return None
 
-    print(f"Found a player by name. Tag: {player_tag}")
+    print(f"[INFO] Found a player by name. Tag: {player_tag}")
     data = await get_battle_log(player_tag)
     return get_last_deck(data)
 
@@ -150,7 +147,7 @@ async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[dict
     if not member_tag:
         return None
 
-    print(f"Found player by clan. Tag: {member_tag}")
+    print(f"[INFO] Found player by clan. Tag: {member_tag}")
     data = await get_battle_log(member_tag)
     return get_last_deck(data)
 
@@ -163,21 +160,3 @@ async def find_deck(browser: Browser, name: str, clan: str | None) -> list[dict[
     if not deck:
         deck = await find_deck_by_name(browser, name, clan)
     return deck
-
-
-async def run(playwright: Playwright) -> None:
-    browser = await init_browser(playwright)
-
-    name = input("Player name: ")
-    clan = input("Player clan: ") or None
-
-    await browser.close()
-
-
-async def main() -> None:
-    async with async_playwright() as playwright:
-        await run(playwright)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
