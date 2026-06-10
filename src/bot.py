@@ -24,17 +24,19 @@ async def d(ctx, name, clan=None):
 
     print(f"[INFO] Searching for: {name}, Clan: {clan if clan else "No clan"}")
 
-    deck = await search.find_deck(bot.browser, name, clan)
+    async with ctx.typing():
+        deck = await search.find_deck(bot.browser, name, clan)
 
 
-    if not deck:
-        await ctx.reply("No deck found")
-        return
+        if not deck:
+            await ctx.reply("No deck found")
+            return
 
-    deck_image = await build_deck_image(deck)
-    buffer = io.BytesIO()
-    deck_image.save(buffer, format="PNG")
-    buffer.seek(0)
+        deck_image = await build_deck_image(deck)
+        buffer = io.BytesIO()
+        deck_image.save(buffer, format="PNG")
+        buffer.seek(0)
+
     await ctx.reply(file=discord.File(buffer, filename="deck.png"))
 
 
