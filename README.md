@@ -5,13 +5,13 @@
 <details>
   <summary>Search by Nickname+Clan Demo</summary>
   
-  https://github.com/user-attachments/assets/f31a308e-e3e9-4edf-85bf-92d09f124f42
-  
+  <img width="800" height="811" alt="SearchByNameClanDemo" src="https://github.com/user-attachments/assets/ddbc3d95-1a3e-458c-8ee9-08bbb8708c84" />
+
 </details>
 <details>
   <summary>Search by Screenshot</summary>
   
-  https://github.com/user-attachments/assets/b4ab4853-4edf-4871-aeb9-f9ef718cf622
+  <img width="800" height="797" alt="SearchByScreenshotDemo" src="https://github.com/user-attachments/assets/4c740b08-cdc6-4a78-90f8-4ef2e7c2b3bb" />
   
 </details>
 
