@@ -110,7 +110,7 @@ async def get_clan_members(clan_tag: str) -> dict:
 def find_member_in_clan(data: dict, name: str) -> str | None:
     members = data["items"]
     for member in members:
-        if name in member["name"]:
+        if name.lower() in member["name"].lower():
             return member["tag"]
     return None
 

@@ -8,3 +8,7 @@ API_KEY = os.getenv("CR_KEY")
 HEADERS = {"Authorization": f"Bearer {API_KEY}"}
 
 DISCORD_API_KEY = os.getenv("DISCORD_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_KEY")
+
+
+PROMPT = """You are analyzing a Clash Royale screenshot. Extract the opponent's player name and clan name. Return ONLY a JSON object with exactly these two fields: {"name": "player_name", "clan": "clan_name"}. If no clan is visible, set clan to null. Do not include any other text, explanation, or markdown formatting in your response."""
