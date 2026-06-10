@@ -1,21 +1,39 @@
 # Clash Royale Deck Bot
 
+## Demo
 https://github.com/user-attachments/assets/32ac6362-4756-4650-bd64-488e0d589475
 
+## What it does
 This bot uses ```RoyaleAPI``` and official ```Clash Royale API``` to find a player by their nickname and clan. Then it outputs the deck they played last, which is likely to be the deck they are playing right now.
 
 I am using Python with Playwright to search by nickname/clan on RoyaleAPI since the official API only lets you find a player by their tag.
-The bot expects two API keys in your environment variables:
+The bot expects three API keys in your environment variables:
 
 ```CR_KEY``` - Clash Royale API key.
 
 ```DISCORD_KEY``` - Discord bot token.
 
-Additionaly I'm using Pillow to create the image of the deck that the bot sends to the chat.
+```GEMINI_KEY``` - Gemini API token.
 
-All the required dependencies can be installed with:
+Additionaly I'm using Pillow to create the image of the deck that the bot then sends to the chat.
+
+## Installation and Running the bot
+Clone the repo:
+```bash
+git clone git@github.com:vaahoot/cr-deck-bot.git
+cd cr-deck-bot
+```
+
+All the dependencies can be installed with:
 ```bash
 pip3 install -r requirements.txt
+```
+
+Set environment variables:
+```bash
+export CR_KEY="your_cr_api_key"
+export DISCORD_KEY="your_discord_bot_token"
+export GEMINI_KEY="your_gemini_token"
 ```
 
 Run the bot:
@@ -24,9 +42,23 @@ cd src/
 python3 bot.py
 ```
 
-When the bot is on, the command to search for a deck is:
+## Usage
+When you create your bot and get a token, invite it to your server and set the token in your environment variables.
+
 ```
->d <nickname> <clan>
+!d <nickname> <clan>
 ```
 If either nickname or clan have multiple words in them, they have to be wrapped in speech marks.
-Clan is optional but if not given, only users with no clan will be searched
+Clan is optional but if not given, only users with no clan will be searched. Exact names are recommended although incomplete name/clan can still work.
+
+```
+!i <attach image to the message>
+```
+The image should be a screenshot of the battle, an API call is made to gemini to identify the name and clan and then search for the deck. Useful when the nickname is in another language or contains a lot of emotes and will take long to write.
+
+## Limitations
+1. Unfortunately, Playwright cannot be used headless because RoyaleAPI blocks headless browsers.
+
+2. The search is not guaranteed to work if the player has a very common name and no clan or their clan has a common name too.
+
+3. Even when the search works, there is a chance your opponent is not playing the same deck as last game.
