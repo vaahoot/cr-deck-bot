@@ -46,9 +46,8 @@ python3 bot.py
 When you create your bot and get a token, invite it to your server and set the token in your environment variables.
 
 ```
-!d <nickname> <clan>
+!d <nickname>, <clan>
 ```
-If either nickname or clan have multiple words in them, they have to be wrapped in speech marks.
 Clan is optional but if not given, only users with no clan will be searched. Exact names are recommended although incomplete name/clan can still work.
 
 ```

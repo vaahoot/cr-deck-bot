@@ -22,11 +22,27 @@ gemini_client = genai.Client(api_key=GEMINI_API_KEY)
 
 
 @bot.command()
-async def d(ctx, name, clan=None):
+async def d(ctx):
     if not bot.browser:
         print("[ERROR] No browser is initialized")
         await ctx.reply("Internal Error")
         return
+
+    message = ctx.message.content
+    message_without_command = message[2:]
+
+    args = message_without_command.split(",")
+
+    if len(args) == 2:
+        name = args[0].strip()
+        clan = args[1].strip()
+    elif len(args) == 1:
+        name = args[0].strip()
+        clan = None
+    else:
+        await ctx.reply("Invalid number of arguments")
+        return
+
 
     print(f"[INFO] Searching for: {name}, Clan: {clan if clan else 'No clan'}")
 
@@ -37,6 +53,7 @@ async def d(ctx, name, clan=None):
             await ctx.reply("No deck found")
             return
 
+        print(f"Found deck for {name}: {[card['name'] for card in deck]}")
         deck_image = await build_deck_image(deck)
         buffer = io.BytesIO()
         deck_image.save(buffer, format="PNG")
