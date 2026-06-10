@@ -1,7 +1,7 @@
 # Clash Royale Deck Bot
 
 ## Demo
-https://github.com/user-attachments/assets/32ac6362-4756-4650-bd64-488e0d589475
+https://github.com/user-attachments/assets/f31a308e-e3e9-4edf-85bf-92d09f124f42
 
 ## What it does
 This bot uses ```RoyaleAPI``` and official ```Clash Royale API``` to find a player by their nickname and clan. Then it outputs the deck they played last, which is likely to be the deck they are playing right now.
