@@ -26,7 +26,7 @@ async def extract_player_info(client: genai.Client, image_url: str, retries: int
 
         except (ServerError, ClientError) as e:
             if attempt < retries - 1:
-                await asyncio.sleep(2)
+                await asyncio.sleep(1)
             else:
                 raise e
 
