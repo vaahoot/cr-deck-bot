@@ -3,7 +3,7 @@ import json
 
 from google import genai
 from google.genai import types
-from google.genai.errors import ServerError
+from google.genai.errors import ServerError, ClientError
 
 from config import PROMPT
 
@@ -24,7 +24,7 @@ async def extract_player_info(client: genai.Client, image_url: str, retries: int
                 info = json.loads(cleaned)
                 return info
 
-        except ServerError as e:
+        except (ServerError, ClientError) as e:
             if attempt < retries - 1:
                 await asyncio.sleep(2)
             else:

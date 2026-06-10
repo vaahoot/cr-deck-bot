@@ -72,10 +72,10 @@ async def i(ctx):
     attachments = ctx.message.attachments
 
     if not attachments:
-        ctx.reply("This command requires a screenshot")
+        await ctx.reply("This command requires a screenshot")
         return
     if len(attachments) > 1:
-        ctx.reply("Only 1 image allowed")
+        await ctx.reply("Only 1 image allowed")
         return
 
     async with ctx.typing():
