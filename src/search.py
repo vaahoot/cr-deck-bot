@@ -110,7 +110,7 @@ async def get_clan_members(clan_tag: str) -> dict:
 def find_member_in_clan(data: dict, name: str) -> str | None:
     members = data["items"]
     for member in members:
-        if member["name"] == name:
+        if name in member["name"]:
             return member["tag"]
     return None
 
@@ -132,6 +132,7 @@ async def find_deck_by_name(
     player_tag = find_player_tag(players, clan)
 
     if not player_tag:
+        print(f"[INFO] Player {name} not found")
         return None
 
     print(f"[INFO] Found a player by name. Tag: {player_tag}")
@@ -145,6 +146,7 @@ async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[dict
     member_tag = await search_player_in_clans(clans, name)
 
     if not member_tag:
+        print(f"[INFO] Player {name} not found")
         return None
 
     print(f"[INFO] Found player by clan. Tag: {member_tag}")
