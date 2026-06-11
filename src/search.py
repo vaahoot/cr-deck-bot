@@ -9,7 +9,7 @@ from config import (
     ROYALE_API_PLAYER_SEARCH,
 )
 from deck import get_last_deck
-from helper import normalise
+from helper import normalise, print_info
 
 
 async def search(browser: Browser, link: str, selector: str) -> str:
@@ -132,10 +132,10 @@ async def find_deck_by_name(
     player_tag = find_player_tag(players, clan)
 
     if not player_tag:
-        print(f"[INFO] Player {name} not found")
+        print_info(f"Player {name} not found")
         return None
 
-    print(f"[INFO] Found a player by name. Tag: {player_tag}")
+    print_info(f"Found a player by name. Tag: {player_tag}")
     data = await get_battle_log(player_tag)
     return get_last_deck(data)
 
@@ -146,10 +146,10 @@ async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[dict
     member_tag = await search_player_in_clans(clans, name)
 
     if not member_tag:
-        print(f"[INFO] Player {name} not found")
+        print_info(f"Player {name} not found")
         return None
 
-    print(f"[INFO] Found player by clan. Tag: {member_tag}")
+    print_info(f"Found player by clan. Tag: {member_tag}")
     data = await get_battle_log(member_tag)
     return get_last_deck(data)
 
