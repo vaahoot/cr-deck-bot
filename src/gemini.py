@@ -12,7 +12,7 @@ async def extract_player_info(client: genai.Client, image_url: str, retries: int
     for attempt in range(retries):
         try:
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-3.5-flash",
                 contents=[
                     types.Part.from_text(text=PROMPT),
                     types.Part.from_uri(file_uri=image_url),
