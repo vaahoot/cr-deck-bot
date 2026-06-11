@@ -82,14 +82,15 @@ async def i(ctx):
         url = attachments[0].url
         player_info = await extract_player_info(gemini_client, url)
         if not player_info:
-            ctx.reply("Internal Error")
+            await ctx.reply("Internal Error")
             return
 
         name = player_info.get("name")
         clan = player_info.get("clan")
 
-        if not name or not clan:
-            ctx.reply("Internal Error")
+        if not name:
+            print("[ERROR] Invalid image received")
+            await ctx.reply("Invalid image")
             return
 
         deck = await search.find_deck(bot.browser, name, clan)
