@@ -135,7 +135,7 @@ async def find_deck_by_name(
         print_info(f"Player {name} not found")
         return None
 
-    print_info(f"Found a player by name. Tag: {player_tag}")
+    print_info(f"Found player by name. Tag: {player_tag}")
     data = await get_battle_log(player_tag)
     return get_last_deck(data)
 
