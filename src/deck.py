@@ -7,7 +7,22 @@ def get_last_deck(data: list[dict] | None) -> list[dict[str, str]] | None:
     if not data:
         return None
 
-    last_battle = data[0]
+    last_battle = dict()
+    for battle in data:
+        if battle.get("type") == "pathOfLegend":
+            last_battle = battle
+            break
+
+    if not last_battle:
+        for battle in data:
+            if battle.get("type") == "PvP":
+                last_battle = battle
+                break
+
+    if not last_battle:
+        return None
+
+
     team = last_battle["team"][0]
     cards = team["cards"]
 

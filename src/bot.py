@@ -59,6 +59,7 @@ async def i(ctx):
 async def image_channel(ctx, state):
     guild_id = str(ctx.guild.id)
     channels = bot.preferences.setdefault(guild_id, [])
+
     if state.lower() == "on":
         if ctx.channel.id in channels:
             await ctx.reply(f"{ctx.channel.name} is already an image channel")
@@ -70,6 +71,7 @@ async def image_channel(ctx, state):
             f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was set as an image channels list"
         )
         await ctx.reply(f"Channel {ctx.channel.name} set as image channel")
+
     elif state.lower() == "off":
         if not channels:
             await ctx.reply(f"Channel {ctx.channel.name} wasn't an image channel")
@@ -85,6 +87,7 @@ async def image_channel(ctx, state):
             f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from image channels list"
         )
         await ctx.reply(f"Channel {ctx.channel.name} is no longer an image channel")
+
     else:
         await ctx.reply("Invalid state")
 
