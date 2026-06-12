@@ -16,7 +16,7 @@
 </details>
 
 ## What it does
-This bot uses ```RoyaleAPI``` and official ```Clash Royale API``` to find a player by their nickname and clan. Then it outputs the deck they played last, which is likely to be the deck they are playing right now.
+This bot uses `RoyaleAPI` and official `Clash Royale API` to find a player by their nickname and clan. Then it outputs the deck they played last, which is likely to be the deck they are playing right now.
 
 I am using Python with Playwright to search by nickname/clan on RoyaleAPI since the official API only lets you find a player by their tag.
 The bot expects three API keys in your environment variables:
@@ -66,6 +66,11 @@ Clan is optional but if not given, only users with no clan will be searched. Exa
 !i <attach image to the message>
 ```
 The image should be a screenshot of the battle, an API call is made to gemini to identify the name and clan and then search for the deck. Useful when the nickname is in another language or contains a lot of emotes and will take long to write.
+
+```
+!image_channel <on/off>
+```
+Saves this channel as an image channel. In every image channel, the bot will try to search for a deck for every image sent, useful if you want to have a dedicated channel in which you can just send screenshots and get decks without the `!i` command to save time.
 
 ## Limitations
 1. Unfortunately, Playwright cannot be used headless because RoyaleAPI blocks headless browsers.
