@@ -1,12 +1,13 @@
 import datetime
+import json
+import os
 import unicodedata
 
+import aiofiles
+from colorama import Fore, Style
 from playwright.async_api import Browser, Playwright
 
 from config import PREFERENCES
-import aiofiles
-import json
-import os
 
 
 async def init_browser(playwright: Playwright) -> Browser:
@@ -20,20 +21,22 @@ def normalise(text: str) -> str:
     return unicodedata.normalize("NFKC", text).lower().strip()
 
 
-def print_info(msg):
+def log(msg, color, type):
     time = datetime.datetime.now()
     formatted = time.strftime("%Y-%m-%d %H:%M:%S")
 
-    print(f"{formatted} [INFO]", end="\t")
-    print(msg)
+    print(Style.DIM + f"{formatted}" + Style.RESET_ALL, end=" ")
+    print(color + type + Style.RESET_ALL, end="\t")
+    print(msg, end="")
+    print(Style.RESET_ALL)
+
+
+def print_info(msg):
+    log(msg, Fore.GREEN, "INFO")
 
 
 def print_error(msg):
-    time = datetime.datetime.now()
-    formatted = time.strftime("%Y-%m-%d %H:%M:%S")
-
-    print(f"{formatted} [ERROR]", end="\t")
-    print(msg)
+    log(msg, Fore.RED, "ERROR")
 
 
 def load_preferences() -> dict:
