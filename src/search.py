@@ -1,6 +1,6 @@
 import aiohttp
 import bs4
-from playwright.async_api import Browser
+from playwright.async_api import Browser, Route
 from config import (
     CLASH_API_BATTLE_LOG,
     CLASH_API_CLAN_MEMBERS,
@@ -12,11 +12,23 @@ from deck import get_last_deck
 from helper import normalise, print_info
 
 
+async def block_resources(route: Route):
+    blocked = ["image", "stylesheet", "font", "media"]
+
+    if route.request.resource_type in blocked:
+        await route.abort()
+    else:
+        await route.continue_()
+
+
 async def search(browser: Browser, link: str, selector: str) -> str:
     page = await browser.new_page()
+    await page.route("**/*", block_resources)
+
     await page.goto(link)
     await page.wait_for_selector(selector)
     html = await page.inner_html(selector)
+
     await page.close()
     return html
 

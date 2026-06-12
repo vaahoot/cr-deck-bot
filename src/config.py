@@ -13,6 +13,16 @@ DISCORD_API_KEY = os.getenv("DISCORD_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_KEY")
 
 GEMINI_DEFAULT_VERSION = "gemini-2.5-flash"
-GEMINI_PROMPT = """You are analyzing a Clash Royale matchmaking screen. There are two players shown. Extract the name and clan of the OPPONENT - this is the player on the TOP side of the screen. Return ONLY a JSON object: {"name": "player_name", "clan": "clan_name"}. If no clan is visible, set clan to null. If the name AND clan are not visible or the screenshot doesn't show clash royale gameplay, set both to null. Do not include any other text, explanation, or markdown formatting. The player name is displayed prominently above the clan name which is smaller. The player name is either gold or white and the clan name has a yellowish colour."""
+GEMINI_PROMPT = """You are analyzing a Clash Royale matchmaking screen. Two players are shown battling.
+Extract the name and clan of the OPPONENT only. The opponent is the player on the TOP half of the screen.
+The opponent's player name appears prominently in gold or white text. Directly below it is their clan name in a smaller, yellowish font. Below the clan name is their King level.
+Return ONLY a valid JSON object with no markdown, no explanation, no code blocks:
+{"name": "player_name", "clan": "clan_name"}
+Rules:
+- If no clan is visible, set clan to null
+- If this is not a Clash Royale matchmaking screen, return {"name": null, "clan": null}
+- Preserve the exact spelling and capitalisation of the name and clan
+- Do not confuse the bottom player (you) with the top player (opponent)"""
 
 PREFERENCES = Path(__file__).parent.parent / "preferences.json"
+
