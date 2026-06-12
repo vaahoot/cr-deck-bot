@@ -1,9 +1,9 @@
 import discord
 from google import genai
 
-from config import DISCORD_API_KEY, GEMINI_API_KEY
+from config import DISCORD_API_KEY, GEMINI_API_KEY, GEMINI_DEFAULT_VERSION
 from CRBot import CRBot
-from helper import print_error, print_info, save_preferences
+from helper import print_error, print_info
 
 if not DISCORD_API_KEY:
     raise ValueError("API key not found")
@@ -18,8 +18,8 @@ bot = CRBot(command_prefix="!", intents=intents, gemini_client=gemini_client)
 
 
 # Command to find player's deck by name and clan
-@bot.command()
-async def d(ctx):
+@bot.command(aliases=["d"])
+async def deck(ctx):
     if not bot.browser:
         print_error("No browser is initialized")
         await ctx.reply("Internal Error")
@@ -44,8 +44,8 @@ async def d(ctx):
 
 
 # Command to find player's deck by an image
-@bot.command()
-async def i(ctx):
+@bot.command(aliases=["i"])
+async def image(ctx):
     if not bot.browser:
         print_error("No browser is initialized")
         await ctx.reply("Internal Error")
@@ -56,40 +56,52 @@ async def i(ctx):
 
 # Command to set the channel in which !i is not needed for the bot to start searching by screenshot.
 @bot.command()
-async def image_channel(ctx, state):
-    guild_id = str(ctx.guild.id)
-    channels = bot.preferences.setdefault(guild_id, [])
+async def image_channel(ctx, state: str):
+    guild_preferences = bot.get_preferences(ctx.guild.id)
+    channels = guild_preferences.setdefault("imageChannels", [])
+
+    channel = ctx.channel
 
     if state.lower() == "on":
-        if ctx.channel.id in channels:
-            await ctx.reply(f"{ctx.channel.name} is already an image channel")
+        if channel.id in channels:
+            await ctx.reply(f"{channel.name} is already an image channel")
             return
 
-        bot.preferences[guild_id].append(ctx.channel.id)
-        await save_preferences(bot.preferences)
+        channels.append(channel.id)
+        await bot.save_preferences()
         print_info(
-            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was added to the image channels list"
+            f"Channel: {channel.name}, ID: {channel.id} was added to the image channels list"
         )
-        await ctx.reply(f"Channel {ctx.channel.name} set as image channel")
+        await ctx.reply(f"Channel {channel.name} set as image channel")
 
     elif state.lower() == "off":
-        if not channels:
-            await ctx.reply(f"Channel {ctx.channel.name} wasn't an image channel")
+        if channel.id not in channels:
+            await ctx.reply(f"Channel {channel.name} wasn't an image channel")
             return
 
-        if ctx.channel.id not in channels:
-            await ctx.reply(f"Channel {ctx.channel.name} wasn't an image channel")
-            return
-
-        bot.preferences[guild_id].remove(ctx.channel.id)
-        await save_preferences(bot.preferences)
+        channels.remove(channel.id)
+        await bot.save_preferences()
         print_info(
-            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from the image channels list"
+            f"Channel: {channel.name}, ID: {channel.id} was removed from the image channels list"
         )
-        await ctx.reply(f"Channel {ctx.channel.name} is no longer an image channel")
+        await ctx.send(f"Channel {channel.name} is no longer an image channel")
 
     else:
         await ctx.reply("Invalid state")
+
+
+@bot.command()
+async def gemini(ctx, version: str | None = None):
+    guild_preferences = bot.get_preferences(ctx.guild.id)
+    current_version = guild_preferences.setdefault("geminiVersion", GEMINI_DEFAULT_VERSION)
+
+    if not version:
+        await ctx.send(f"You are using: {current_version}")
+    else:
+        guild_preferences["geminiVersion"] = version
+
+        await bot.save_preferences()
+        await ctx.send(f"Gemini version set to: {version}")
 
 
 bot.run(DISCORD_API_KEY)

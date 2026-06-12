@@ -1,4 +1,3 @@
-import asyncio
 import io
 
 import discord
@@ -6,13 +5,12 @@ from discord.ext import commands
 from google.genai.errors import ClientError, ServerError
 from playwright.async_api import Browser, Playwright, async_playwright
 
+from config import GEMINI_DEFAULT_VERSION
 import helper
 import search
 from deck import build_deck_image
 from gemini import extract_player_info
-from helper import print_error, print_info, load_preferences
-
-
+from helper import load_preferences, print_error, print_info, save_preferences
 
 
 class CRBot(commands.Bot):
@@ -56,12 +54,15 @@ class CRBot(commands.Bot):
 
         attachments = message.attachments
         channel = message.channel
+        guild = message.guild
 
         async with channel.typing():
             url = attachments[0].url
+            preferences = self.get_preferences(guild.id)
+            gemini_version = preferences.setdefault("geminiVersion", GEMINI_DEFAULT_VERSION)
 
             try:
-                player_info = await extract_player_info(self.gemini_client, url)
+                player_info = await extract_player_info(self.gemini_client, url, gemini_version)
             except ClientError as e:
                 print_error(f"ClientError: {e.code} {e.status}")
                 await message.reply("Gemini limit reached")
@@ -85,15 +86,24 @@ class CRBot(commands.Bot):
 
             await self.search_by_info(name, clan, message)
 
+    async def save_preferences(self):
+        await save_preferences(self.preferences)
+
+    def get_preferences(self, guild_id: int):
+        """Return a list of all preferences saved in the bot for a given guild"""
+        guild_key = str(guild_id)
+        return self.preferences.setdefault(guild_key, {})
+
     async def on_message(self, message):
         if message.author == self.user:
             return
 
         guild = message.guild.id
         channel = message.channel.id
+        preferences = self.get_preferences(guild)
 
-        if (channel in self.preferences.setdefault(str(guild), []) and message.attachments):
-            asyncio.create_task(self.search_by_image(message))
+        if (channel in preferences.setdefault("imageChannels", []) and message.attachments):
+            await self.search_by_image(message)
 
         await self.process_commands(message)
 

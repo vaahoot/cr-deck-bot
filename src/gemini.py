@@ -5,14 +5,14 @@ from google import genai
 from google.genai import types
 from google.genai.errors import ClientError, ServerError
 
-from config import GEMINI_PROMPT
+from config import GEMINI_PROMPT, GEMINI_DEFAULT_VERSION
 
 
-async def extract_player_info(client: genai.Client, image_url: str, retries: int = 3) -> dict | None:
+async def extract_player_info(client: genai.Client, image_url: str, version: str = GEMINI_DEFAULT_VERSION, retries: int = 3) -> dict | None:
     for attempt in range(retries):
         try:
             response = await client.aio.models.generate_content(
-                model="gemini-2.5-flash",
+                model=version,
                 contents=[
                     types.Part.from_text(text=GEMINI_PROMPT),
                     types.Part.from_uri(file_uri=image_url),
