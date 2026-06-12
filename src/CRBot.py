@@ -4,7 +4,7 @@ import os
 
 import discord
 from discord.ext import commands
-from google.genai.errors import ClientError
+from google.genai.errors import ClientError, ServerError
 from playwright.async_api import Browser, Playwright, async_playwright
 
 import helper
@@ -75,6 +75,10 @@ class CRBot(commands.Bot):
             except ClientError:
                 print_error("Gemini limit reached, search by image failed")
                 await message.reply("Gemini limit reached")
+                return
+            except ServerError:
+                print_error("Gemini servers busy, try again later")
+                await message.reply("Gemini servers are busy, try again later")
                 return
 
             if not player_info:
