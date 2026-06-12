@@ -5,9 +5,9 @@ from discord.ext import commands
 from google.genai.errors import ClientError, ServerError
 from playwright.async_api import Browser, Playwright, async_playwright
 
-from config import GEMINI_DEFAULT_VERSION
 import helper
 import search
+from config import GEMINI_DEFAULT_VERSION
 from deck import build_deck_image
 from gemini import extract_player_info
 from helper import load_preferences, print_error, print_info, save_preferences
@@ -64,11 +64,16 @@ class CRBot(commands.Bot):
             try:
                 player_info = await extract_player_info(self.gemini_client, url, gemini_version)
             except ClientError as e:
-                print_error(f"ClientError: {e.code} {e.status}")
-                await message.reply("Gemini limit reached")
+                print_error(f"ClientError: {e.code} {e.status}\n{e.message}")
+
+                if e.code == 404:
+                    await message.reply(f"Invalid gemini version: {gemini_version}")
+                elif e.code == 429:
+                    await message.reply("Gemini limit reached")
+
                 return
             except ServerError as e:
-                print_error(f"ServerError: {e.code} {e.status}")
+                print_error(f"ServerError: {e.code} {e.status}\n{e.message}")
                 await message.reply("Gemini servers are busy, try again later")
                 return
 
