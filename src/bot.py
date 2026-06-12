@@ -2,8 +2,8 @@ import discord
 from google import genai
 
 from config import DISCORD_API_KEY, GEMINI_API_KEY
-from CRBot import CRBot, save_preferences
-from helper import print_error, print_info
+from CRBot import CRBot
+from helper import print_error, print_info, save_preferences
 
 if not DISCORD_API_KEY:
     raise ValueError("API key not found")
@@ -68,7 +68,7 @@ async def image_channel(ctx, state):
         bot.preferences[guild_id].append(ctx.channel.id)
         await save_preferences(bot.preferences)
         print_info(
-            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was set as an image channels list"
+            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was added to the image channels list"
         )
         await ctx.reply(f"Channel {ctx.channel.name} set as image channel")
 
@@ -84,7 +84,7 @@ async def image_channel(ctx, state):
         bot.preferences[guild_id].remove(ctx.channel.id)
         await save_preferences(bot.preferences)
         print_info(
-            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from image channels list"
+            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from the image channels list"
         )
         await ctx.reply(f"Channel {ctx.channel.name} is no longer an image channel")
 

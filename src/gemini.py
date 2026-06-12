@@ -3,9 +3,9 @@ import json
 
 from google import genai
 from google.genai import types
-from google.genai.errors import ServerError, ClientError
+from google.genai.errors import ClientError, ServerError
 
-from config import PROMPT
+from config import GEMINI_PROMPT
 
 
 async def extract_player_info(client: genai.Client, image_url: str, retries: int = 3) -> dict | None:
@@ -14,7 +14,7 @@ async def extract_player_info(client: genai.Client, image_url: str, retries: int
             response = await client.aio.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=[
-                    types.Part.from_text(text=PROMPT),
+                    types.Part.from_text(text=GEMINI_PROMPT),
                     types.Part.from_uri(file_uri=image_url),
                 ],
             )

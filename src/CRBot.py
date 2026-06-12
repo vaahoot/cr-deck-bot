@@ -1,8 +1,5 @@
 import asyncio
-import aiofiles
 import io
-import json
-import os
 
 import discord
 from discord.ext import commands
@@ -11,22 +8,11 @@ from playwright.async_api import Browser, Playwright, async_playwright
 
 import helper
 import search
-from config import PREFERENCES
 from deck import build_deck_image
 from gemini import extract_player_info
-from helper import print_error, print_info
+from helper import print_error, print_info, load_preferences
 
 
-def load_preferences() -> dict:
-    if not os.path.exists(PREFERENCES):
-        return {}
-    with open(PREFERENCES, "r") as f:
-        return json.load(f)
-
-
-async def save_preferences(data: dict) -> None:
-    async with aiofiles.open(PREFERENCES, "w") as f:
-        await f.write(json.dumps(data))
 
 
 class CRBot(commands.Bot):

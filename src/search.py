@@ -4,7 +4,7 @@ from playwright.async_api import Browser
 from config import (
     CLASH_API_BATTLE_LOG,
     CLASH_API_CLAN_MEMBERS,
-    HEADERS,
+    CLASH_API_HEADERS,
     ROYALE_API_CLAN_SEARCH,
     ROYALE_API_PLAYER_SEARCH,
 )
@@ -94,7 +94,7 @@ def find_player_tag(players: list[dict], clan: str | None) -> str | None:
 async def get_battle_log(tag: str) -> list[dict]:
     url = CLASH_API_BATTLE_LOG.format(tag.replace("#", "%23"))
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=HEADERS) as response:
+        async with session.get(url, headers=CLASH_API_HEADERS) as response:
             response.raise_for_status()
             return await response.json()
 
@@ -102,7 +102,7 @@ async def get_battle_log(tag: str) -> list[dict]:
 async def get_clan_members(clan_tag: str) -> dict:
     url = CLASH_API_CLAN_MEMBERS.format(clan_tag)
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=HEADERS) as response:
+        async with session.get(url, headers=CLASH_API_HEADERS) as response:
             response.raise_for_status()
             return await response.json()
 

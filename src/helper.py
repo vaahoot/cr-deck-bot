@@ -3,6 +3,11 @@ import unicodedata
 
 from playwright.async_api import Browser, Playwright
 
+from config import PREFERENCES
+import aiofiles
+import json
+import os
+
 
 async def init_browser(playwright: Playwright) -> Browser:
     chromium = playwright.chromium
@@ -29,3 +34,15 @@ def print_error(msg):
 
     print(f"{formatted} [ERROR]", end="\t")
     print(msg)
+
+
+def load_preferences() -> dict:
+    if not os.path.exists(PREFERENCES):
+        return {}
+    with open(PREFERENCES, "r") as f:
+        return json.load(f)
+
+
+async def save_preferences(data: dict) -> None:
+    async with aiofiles.open(PREFERENCES, "w") as f:
+        await f.write(json.dumps(data))
