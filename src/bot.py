@@ -66,7 +66,7 @@ async def image_channel(ctx, state):
             return
 
         bot.preferences[guild_id].append(ctx.channel.id)
-        save_preferences(bot.preferences)
+        await save_preferences(bot.preferences)
         print_info(
             f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was set as an image channels list"
         )
@@ -82,7 +82,7 @@ async def image_channel(ctx, state):
             return
 
         bot.preferences[guild_id].remove(ctx.channel.id)
-        save_preferences(bot.preferences)
+        await save_preferences(bot.preferences)
         print_info(
             f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from image channels list"
         )

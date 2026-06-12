@@ -11,7 +11,7 @@ from config import PROMPT
 async def extract_player_info(client: genai.Client, image_url: str, retries: int = 3) -> dict | None:
     for attempt in range(retries):
         try:
-            response = client.models.generate_content(
+            response = await client.aio.models.generate_content(
                 model="gemini-2.5-flash",
                 contents=[
                     types.Part.from_text(text=PROMPT),

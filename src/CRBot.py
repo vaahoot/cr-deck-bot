@@ -1,3 +1,5 @@
+import asyncio
+import aiofiles
 import io
 import json
 import os
@@ -22,9 +24,9 @@ def load_preferences() -> dict:
         return json.load(f)
 
 
-def save_preferences(data: dict) -> None:
-    with open(PREFERENCES, "w") as f:
-        json.dump(data, f)
+async def save_preferences(data: dict) -> None:
+    async with aiofiles.open(PREFERENCES, "w") as f:
+        await f.write(json.dumps(data))
 
 
 class CRBot(commands.Bot):
@@ -41,6 +43,7 @@ class CRBot(commands.Bot):
         print_info(f"Created a browser: {self.browser}")
 
         self.preferences = load_preferences()
+        print_info("Preferences loaded")
 
     async def search_by_info(self, name: str, clan: str | None, message):
         assert self.browser is not None
@@ -64,6 +67,7 @@ class CRBot(commands.Bot):
 
     async def search_by_image(self, message):
         assert self.browser is not None
+
         attachments = message.attachments
         channel = message.channel
 
@@ -72,12 +76,12 @@ class CRBot(commands.Bot):
 
             try:
                 player_info = await extract_player_info(self.gemini_client, url)
-            except ClientError:
-                print_error("Gemini limit reached, search by image failed")
+            except ClientError as e:
+                print_error(f"ClientError: {e.code} {e.status}")
                 await message.reply("Gemini limit reached")
                 return
-            except ServerError:
-                print_error("Gemini servers busy, try again later")
+            except ServerError as e:
+                print_error(f"ServerError: {e.code} {e.status}")
                 await message.reply("Gemini servers are busy, try again later")
                 return
 
@@ -96,18 +100,16 @@ class CRBot(commands.Bot):
             await self.search_by_info(name, clan, message)
 
     async def on_message(self, message):
-        await self.process_commands(message)
         if message.author == self.user:
             return
 
         guild = message.guild.id
         channel = message.channel.id
 
-        if (
-            channel in self.preferences.setdefault(str(guild), [])
-            and message.attachments
-        ):
-            await self.search_by_image(message)
+        if (channel in self.preferences.setdefault(str(guild), []) and message.attachments):
+            asyncio.create_task(self.search_by_image(message))
+
+        await self.process_commands(message)
 
     async def close(self):
         if self.browser:
