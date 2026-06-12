@@ -1,13 +1,9 @@
-import io
-
 import discord
 from google import genai
 
-import search
 from config import DISCORD_API_KEY, GEMINI_API_KEY
-from CRBot import CRBot
-from deck import build_deck_image
-from gemini import extract_player_info
+from CRBot import CRBot, save_preferences
+from helper import print_error, print_info
 
 if not DISCORD_API_KEY:
     raise ValueError("API key not found")
@@ -17,14 +13,15 @@ browser = None
 intents = discord.Intents.default()
 intents.message_content = True
 
-bot = CRBot(command_prefix="!", intents=intents)
 gemini_client = genai.Client(api_key=GEMINI_API_KEY)
+bot = CRBot(command_prefix="!", intents=intents, gemini_client=gemini_client)
 
 
+# Command to find player's deck by name and clan
 @bot.command()
 async def d(ctx):
     if not bot.browser:
-        print("[ERROR] No browser is initialized")
+        print_error("No browser is initialized")
         await ctx.reply("Internal Error")
         return
 
@@ -43,68 +40,53 @@ async def d(ctx):
         await ctx.reply("Invalid number of arguments")
         return
 
-
-    print(f"[INFO] Searching for: {name}, Clan: {clan if clan else 'No clan'}")
-
-    async with ctx.typing():
-        deck = await search.find_deck(bot.browser, name, clan)
-
-        if not deck:
-            await ctx.reply("No deck found")
-            return
-
-        print(f"Found deck for {name}: {[card['name'] for card in deck]}")
-        deck_image = await build_deck_image(deck)
-        buffer = io.BytesIO()
-        deck_image.save(buffer, format="PNG")
-        buffer.seek(0)
-
-    await ctx.reply(file=discord.File(buffer, filename="deck.png"))
+    await bot.search_by_info(name, clan, ctx.message)
 
 
+# Command to find player's deck by an image
 @bot.command()
 async def i(ctx):
     if not bot.browser:
-        print("[ERROR] No browser is initialized")
+        print_error("No browser is initialized")
         await ctx.reply("Internal Error")
         return
 
-    attachments = ctx.message.attachments
+    await bot.search_by_image(ctx.message)
 
-    if not attachments:
-        await ctx.reply("This command requires a screenshot")
-        return
-    if len(attachments) > 1:
-        await ctx.reply("Only 1 image allowed")
-        return
 
-    async with ctx.typing():
-        url = attachments[0].url
-        player_info = await extract_player_info(gemini_client, url)
-        if not player_info:
-            await ctx.reply("Internal Error")
+# Command to set the channel in which !i is not needed for the bot to start searching by screenshot.
+@bot.command()
+async def image_channel(ctx, state):
+    guild_id = str(ctx.guild.id)
+    channels = bot.preferences.setdefault(guild_id, [])
+    if state.lower() == "on":
+        if ctx.channel.id in channels:
+            await ctx.reply(f"{ctx.channel.name} is already an image channel")
             return
 
-        name = player_info.get("name")
-        clan = player_info.get("clan")
-
-        if not name:
-            print("[ERROR] Invalid image received")
-            await ctx.reply("Invalid image")
+        bot.preferences[guild_id].append(ctx.channel.id)
+        save_preferences(bot.preferences)
+        print_info(
+            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was set as an image channels list"
+        )
+        await ctx.reply(f"Channel {ctx.channel.name} set as image channel")
+    elif state.lower() == "off":
+        if not channels:
+            await ctx.reply(f"Channel {ctx.channel.name} wasn't an image channel")
             return
 
-        deck = await search.find_deck(bot.browser, name, clan)
-
-        if not deck:
-            await ctx.reply("No deck found")
+        if ctx.channel.id not in channels:
+            await ctx.reply(f"Channel {ctx.channel.name} wasn't an image channel")
             return
 
-        deck_image = await build_deck_image(deck)
-        buffer = io.BytesIO()
-        deck_image.save(buffer, format="PNG")
-        buffer.seek(0)
-
-    await ctx.reply(file=discord.File(buffer, filename="deck.png"))
+        bot.preferences[guild_id].remove(ctx.channel.id)
+        save_preferences(bot.preferences)
+        print_info(
+            f"Channel: {ctx.channel.name}, ID: {ctx.channel.id} was removed from image channels list"
+        )
+        await ctx.reply(f"Channel {ctx.channel.name} is no longer an image channel")
+    else:
+        await ctx.reply("Invalid state")
 
 
 bot.run(DISCORD_API_KEY)
