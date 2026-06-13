@@ -25,7 +25,7 @@ The bot expects three API keys in your environment variables:
 
 ```DISCORD_KEY``` - Discord bot token.
 
-```OPENAI_API_KEY``` - Gemini API token.
+```OPENAI_API_KEY``` - OpenAI API token.
 
 Additionaly I'm using Pillow to create the image of the deck that the bot then sends to the chat.
 
@@ -45,7 +45,7 @@ Set environment variables:
 ```bash
 export CR_KEY="your_cr_api_key"
 export DISCORD_KEY="your_discord_bot_token"
-export GEMINI_KEY="your_gemini_token"
+export OPENAI_API_KEY="your_openai_api_key"
 ```
 
 Run the bot:
@@ -65,7 +65,7 @@ Clan is optional but if not given, only users with no clan will be searched. Exa
 ```
 !i <attach image to the message>
 ```
-The image should be a screenshot of the battle, an API call is made to gemini to identify the name and clan and then search for the deck. Useful when the nickname is in another language or contains a lot of emotes and will take long to write.
+The image should be a screenshot of the battle, an API call is made to chatGPT to identify the name and clan and then search for the deck. Useful when the nickname is in another language or contains a lot of emotes and will take long to write.
 
 ```
 !image_channel <on/off>
