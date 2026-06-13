@@ -1,37 +1,40 @@
 import io
+import time
 
 import discord
 from discord.ext import commands
-from google.genai.errors import ClientError, ServerError
 from playwright.async_api import Browser, Playwright, async_playwright
 
 import helper
 import search
-from config import GEMINI_DEFAULT_VERSION
+from gpt import extract_player_info
+from config import GPT_DEFAULT_VERSION
 from deck import build_deck_image
-from gemini import extract_player_info
 from helper import load_preferences, print_error, print_info, save_preferences
 
 
 class CRBot(commands.Bot):
-    def __init__(self, command_prefix, intents, gemini_client):
+    def __init__(self, command_prefix, intents, gpt_client):
         super().__init__(command_prefix, intents=intents)
         self.browser: Browser | None = None
         self.playwright: Playwright | None = None
-        self.gemini_client = gemini_client
+        self.gpt_client = gpt_client
 
     async def setup_hook(self):
         self.playwright = await async_playwright().start()
-        print_info(f"Created playwright: {self.playwright}")
+        await print_info(f"Created playwright: {self.playwright}")
         self.browser = await helper.init_browser(self.playwright)
-        print_info(f"Created a browser: {self.browser}")
+        await print_info(f"Created a browser: {self.browser}")
 
         self.preferences = load_preferences()
-        print_info("Preferences loaded")
+        await print_info("Preferences loaded")
 
     async def search_by_info(self, name: str, clan: str | None, message):
         assert self.browser is not None
-        print_info(f"Searching for: {name}, Clan: {clan if clan else 'No clan'}")
+
+        start = time.time()
+
+        await print_info(f"Searching for: {name}, Clan: {clan if clan else 'No clan'}")
         channel = message.channel
 
         async with channel.typing():
@@ -41,7 +44,7 @@ class CRBot(commands.Bot):
                 await message.reply("No deck found")
                 return
 
-            print_info(f"Found deck for {name}: {[card['name'] for card in deck]}")
+            await print_info(f"Found deck for {name}: {[card['name'] for card in deck]}")
             deck_image = await build_deck_image(deck)
             buffer = io.BytesIO()
             deck_image.save(buffer, format="PNG")
@@ -49,8 +52,13 @@ class CRBot(commands.Bot):
 
         await message.reply(file=discord.File(buffer, filename="deck.png"))
 
+        time_taken = time.time() - start
+        await print_info(f"Search by info took {time_taken:.2f}s")
+
     async def search_by_image(self, message):
         assert self.browser is not None
+
+        start = time.time()
 
         attachments = message.attachments
         channel = message.channel
@@ -59,23 +67,9 @@ class CRBot(commands.Bot):
         async with channel.typing():
             url = attachments[0].url
             preferences = self.get_preferences(guild.id)
-            gemini_version = preferences.setdefault("geminiVersion", GEMINI_DEFAULT_VERSION)
+            gpt_version = preferences.setdefault("gptVersion", GPT_DEFAULT_VERSION )
 
-            try:
-                player_info = await extract_player_info(self.gemini_client, url, gemini_version)
-            except ClientError as e:
-                print_error(f"ClientError: {e.code} {e.status}\n{e.message}")
-
-                if e.code == 404:
-                    await message.reply(f"Invalid gemini version: {gemini_version}")
-                elif e.code == 429:
-                    await message.reply("Gemini limit reached")
-
-                return
-            except ServerError as e:
-                print_error(f"ServerError: {e.code} {e.status}\n{e.message}")
-                await message.reply("Gemini servers are busy, try again later")
-                return
+            player_info = await extract_player_info(self.gpt_client, url, gpt_version)
 
             if not player_info:
                 await message.reply("Internal Error")
@@ -85,11 +79,14 @@ class CRBot(commands.Bot):
             clan = player_info.get("clan")
 
             if not name:
-                print_error("Invalid image received")
+                await print_error("Invalid image received")
                 await message.reply("Invalid image")
                 return
 
             await self.search_by_info(name, clan, message)
+
+        time_taken = time.time() - start
+        await print_info(f"Search by image took {time_taken:.2f}s")
 
     async def save_preferences(self):
         await save_preferences(self.preferences)
@@ -115,9 +112,9 @@ class CRBot(commands.Bot):
     async def close(self):
         if self.browser:
             await self.browser.close()
-            print_info("Closed browser")
+            await print_info("Closed browser")
         if self.playwright:
             await self.playwright.stop()
-            print_info("Closed playwright")
+            await print_info("Closed playwright")
 
         await super().close()

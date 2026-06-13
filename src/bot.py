@@ -1,7 +1,7 @@
 import discord
-from google import genai
+from openai import AsyncOpenAI
 
-from config import DISCORD_API_KEY, GEMINI_API_KEY, GEMINI_DEFAULT_VERSION
+from config import DISCORD_API_KEY, GPT_DEFAULT_VERSION
 from CRBot import CRBot
 from helper import print_error, print_info
 
@@ -13,15 +13,15 @@ browser = None
 intents = discord.Intents.default()
 intents.message_content = True
 
-gemini_client = genai.Client(api_key=GEMINI_API_KEY)
-bot = CRBot(command_prefix="!", intents=intents, gemini_client=gemini_client)
+ai_client = AsyncOpenAI()
+bot = CRBot(command_prefix="!", intents=intents, gpt_client=ai_client)
 
 
 # Command to find player's deck by name and clan
 @bot.command(aliases=["d"])
 async def deck(ctx):
     if not bot.browser:
-        print_error("No browser is initialized")
+        await print_error("No browser is initialized")
         await ctx.reply("Internal Error")
         return
 
@@ -47,7 +47,7 @@ async def deck(ctx):
 @bot.command(aliases=["i"])
 async def image(ctx):
     if not bot.browser:
-        print_error("No browser is initialized")
+        await print_error("No browser is initialized")
         await ctx.reply("Internal Error")
         return
 
@@ -69,7 +69,7 @@ async def image_channel(ctx, state: str):
 
         channels.append(channel.id)
         await bot.save_preferences()
-        print_info(
+        await print_info(
             f"Channel: {channel.name}, ID: {channel.id} was added to the image channels list"
         )
         await ctx.reply(f"Channel {channel.name} set as image channel")
@@ -81,7 +81,7 @@ async def image_channel(ctx, state: str):
 
         channels.remove(channel.id)
         await bot.save_preferences()
-        print_info(
+        await print_info(
             f"Channel: {channel.name}, ID: {channel.id} was removed from the image channels list"
         )
         await ctx.send(f"Channel {channel.name} is no longer an image channel")
@@ -91,17 +91,17 @@ async def image_channel(ctx, state: str):
 
 
 @bot.command()
-async def gemini(ctx, version: str | None = None):
+async def gpt(ctx, version: str | None = None):
     guild_preferences = bot.get_preferences(ctx.guild.id)
-    current_version = guild_preferences.setdefault("geminiVersion", GEMINI_DEFAULT_VERSION)
+    current_version = guild_preferences.setdefault("gptVersion", GPT_DEFAULT_VERSION)
 
     if not version:
         await ctx.send(f"You are using: {current_version}")
     else:
-        guild_preferences["geminiVersion"] = version
+        guild_preferences["gptVersion"] = version
 
         await bot.save_preferences()
-        await ctx.send(f"Gemini version set to: {version}")
+        await ctx.send(f"ChatGPT version set to: {version}")
 
 
 bot.run(DISCORD_API_KEY)
