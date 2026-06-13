@@ -69,6 +69,7 @@ class CRBot(commands.Bot):
             preferences = self.get_preferences(guild.id)
             gpt_version = preferences.setdefault("gptVersion", GPT_DEFAULT_VERSION )
 
+            await print_info(f"Link sent to GPT: {url}")
             player_info = await extract_player_info(self.gpt_client, url, gpt_version)
 
             if not player_info:
@@ -79,7 +80,7 @@ class CRBot(commands.Bot):
             clan = player_info.get("clan")
 
             if not name:
-                await print_error("Invalid image received")
+                await print_error(f"Invalid image received: {url}")
                 await message.reply("Invalid image")
                 return
 
