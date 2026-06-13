@@ -97,7 +97,7 @@ def find_player_tag(players: list[dict], clan: str | None) -> str | None:
 
     else:
         for player in players:
-            if player["clan"] == clan.lower():
+            if player["clan"] and clan.lower() in player["clan"]:
                 return player["tag"]
 
     return None
@@ -136,9 +136,7 @@ async def search_player_in_clans(clans: list[str], name: str) -> str | None:
     return None
 
 
-async def find_deck_by_name(
-    browser: Browser, name: str, clan: str | None
-) -> list[dict[str, str]] | None:
+async def find_deck_by_name(browser: Browser, name: str, clan: str | None) -> list[dict[str, str]] | None:
     search_players = await search_player_by_name(browser, name)
     players = parse_players(search_players)
     player_tag = find_player_tag(players, clan)
@@ -170,7 +168,7 @@ async def find_deck(browser: Browser, name: str, clan: str | None) -> list[dict[
     if not clan:
         return await find_deck_by_name(browser, name, clan)
 
-    deck = await find_deck_by_clan(browser, name, clan)
+    deck = await find_deck_by_name(browser, name, clan)
     if not deck:
-        deck = await find_deck_by_name(browser, name, clan)
+        deck = await find_deck_by_clan(browser, name, clan)
     return deck
