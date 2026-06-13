@@ -101,7 +101,7 @@ async def gpt(ctx, version: str | None = None):
         guild_preferences["gptVersion"] = version
 
         await bot.save_preferences()
-        await ctx.send(f"ChatGPT version set to: {version}")
+        await ctx.send(f"GPT version set to: {version}")
 
 
 bot.run(DISCORD_API_KEY)
