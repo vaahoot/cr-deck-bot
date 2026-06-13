@@ -142,7 +142,6 @@ async def find_deck_by_name(browser: Browser, name: str, clan: str | None) -> li
     player_tag = find_player_tag(players, clan)
 
     if not player_tag:
-        await print_info(f"Player {name} not found")
         return None
 
     await print_info(f"Found player by name. Tag: {player_tag}")
@@ -156,7 +155,6 @@ async def find_deck_by_clan(browser: Browser, name: str, clan: str) -> list[dict
     member_tag = await search_player_in_clans(clans, name)
 
     if not member_tag:
-        await print_info(f"Player {name} not found")
         return None
 
     await print_info(f"Found player by clan. Tag: {member_tag}")
@@ -171,4 +169,8 @@ async def find_deck(browser: Browser, name: str, clan: str | None) -> list[dict[
     deck = await find_deck_by_name(browser, name, clan)
     if not deck:
         deck = await find_deck_by_clan(browser, name, clan)
+
+    if not deck:
+        await print_info(f"Player {name} not found")
+
     return deck
