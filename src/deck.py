@@ -30,11 +30,6 @@ def get_last_deck(data: list[dict] | None) -> list[dict[str, str]] | None:
     for card in cards:
         name = card["name"]
 
-        # Temporary because supercell messed up evo princess and hero tombstone images
-        if name == "Princess" or name == "Tombstone":
-            deck.append({"name": name, "imgLink": card["iconUrls"]["medium"]})
-            continue
-
         if card.get("evolutionLevel") == 1:
             deck.append({"name": name, "imgLink": card["iconUrls"]["evolutionMedium"]})
         elif card.get("evolutionLevel") == 2:
